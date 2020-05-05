@@ -6,6 +6,7 @@ const dispatcherEvents = require('../events/dispatcherEvents');
 const languages = require('../../data/languages.json');
 const { TTS_ENGINES, AEIOU_API_URL } = require('../common/constants');
 const prefix = process.env.PREFIX || require('../../config/settings.json').prefix;
+const { Readable } = require('stream');
 
 const logger = new Logger();
 
@@ -107,19 +108,22 @@ class TTSPlayer {
       };
 
       const [response] = await cloudTTSClient.synthesizeSpeech(request);
+      logger.info(`response.audioContent: ${reponse.audioContent}`);
+      const readable = stream.Readable().from(response.audioContent);
+
       // Write the binary audio content to a local file
-      const writeFile = util.promisify(fs.writeFile);
-      await writeFile('output.mp3', response.audioContent, 'binary');
-      logger.info("finished writing cloudTTS output to file");
-      return 'output.mps';
+      // const writeFile = util.promisify(fs.writeFile);
+      // await writeFile('output.mp3', response.audioContent, 'binary');
+      // logger.info("finished writing cloudTTS output to file");
+      return readable;
     }
 
     cloudTTS()
-      .then(async (filename) => {
+      .then(async (readable) => {
         logger.info(`(TTS): Received cloudTTS for ${phrase} with language '${lang}' and speed ${speed} in guild ${this.guild.name}.'`);
         this.speaking = true;
         const { connection } = this.guild.voice;
-        const dispatcher = await connection.play(filename);
+        const dispatcher = await connection.play(readable);
 
         dispatcher.on('start', () => {
           logger.info('cloudTTS is now playing!');
