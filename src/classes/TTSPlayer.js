@@ -15,7 +15,7 @@ const util = require('util');
 const google_credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_RAW);
 const cloudTTSClient = new textToSpeech.TextToSpeechClient({
   credentials: {
-    client_email: google_credentials.clien_email,
+    client_email: google_credentials.client_email,
     private_key: google_credentials.private_key
   }
 });
