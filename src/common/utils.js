@@ -61,8 +61,6 @@ const splitToPlayable = (words) => {
       return;
     }
 
-    if ()
-
     if (allowOver200 !== 'yes') {
       reject(`your TTS message is ${charCount} characters long. Since the maximum number of characters is ${TTS_MAX_CHARS}, you'll need to remove ${charCount - TTS_MAX_CHARS} characters.`);
       return;
