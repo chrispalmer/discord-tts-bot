@@ -18,8 +18,7 @@
     "discord.js": "github:discordjs/discord.js",
     "fs-extra": "^8.1.0",
     "google-tts-api": "0.0.4",
-    "logger": "github:moonstar-x/logger",
-    "node-opus": "^0.3.2"
+    "logger": "github:moonstar-x/logger"
   },
   "bugs": {
     "url": "https://github.com/chrispalmer/discord-tts-bot/issues"
