@@ -100,7 +100,7 @@ class TTSPlayer {
 
     async function cloudTTS() {
       const request = {
-        input: {text: phrase},
+        input: {ssml: phrase},
         // Select the language and SSML voice gender (optional)
         voice: {languageCode: 'en-US', name: 'en-US-Wavenet-C'},
         // select the type of audio encoding
