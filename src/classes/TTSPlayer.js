@@ -11,7 +11,7 @@ const logger = new Logger();
 
 const fs = require('fs');
 const util = require('util');
-const ttsClient = new textToSpeech.TextToSpeechClient();
+const cloudTTSClient = new textToSpeech.TextToSpeechClient();
 
 
 class TTSPlayer {
@@ -99,7 +99,7 @@ class TTSPlayer {
         audioConfig: {audioEncoding: 'MP3'},
       };
 
-      const [response] = await client.synthesizeSpeech(request);
+      const [response] = await cloudTTSClient.synthesizeSpeech(request);
       // Write the binary audio content to a local file
       const writeFile = util.promisify(fs.writeFile);
       await writeFile('output.mp3', response.audioContent, 'binary');
