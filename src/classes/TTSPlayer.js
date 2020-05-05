@@ -123,6 +123,7 @@ class TTSPlayer {
         this.playTTS();
       });
     }
+    cloudTTS();
   }
 
   playGoogle(firstInQueue) {
