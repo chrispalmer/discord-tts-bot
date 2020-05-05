@@ -80,7 +80,8 @@ const NUMBER_EMOJI_UNICODE = [
 
 const TTS_ENGINES = {
   google: 'google',
-  aeiou: 'aeiou'
+  aeiou: 'aeiou',
+  cloud: 'cloud'
 };
 
 const AEIOU_API_URL = 'http://tts.cyzon.us';

@@ -1,4 +1,5 @@
 const googleTTS = require('google-tts-api');
+const textToSpeech = require('@google-cloud/text-to-speech')
 const axios = require('axios');
 const { Logger } = require('logger');
 const dispatcherEvents = require('../events/dispatcherEvents');
@@ -7,6 +8,11 @@ const { TTS_ENGINES, AEIOU_API_URL } = require('../common/constants');
 const prefix = process.env.PREFIX || require('../../config/settings.json').prefix;
 
 const logger = new Logger();
+
+const fs = require('fs');
+const util = require('util');
+const ttsClient = new textToSpeech.TextToSpeechClient();
+
 
 class TTSPlayer {
   constructor(guild) {
@@ -29,6 +35,14 @@ class TTSPlayer {
   aeiou(messageContent) {
     const message = messageContent.join(' ');
     this.addToQueue([message], TTS_ENGINES.aeiou);
+
+    if (!this.speaking) {
+      this.playTTS();
+    }
+  }
+
+  cloud(queue) {
+    this.addToQueue(queue, TTS_ENGINES.cloud);
 
     if (!this.speaking) {
       this.playTTS();
@@ -59,13 +73,55 @@ class TTSPlayer {
       case TTS_ENGINES.google:
         this.playGoogle(firstInQueue);
         break;
-      
+
       case TTS_ENGINES.aeiou:
         this.playAeiou(firstInQueue);
         break;
 
+      case TTS_ENGINES.cloud:
+        this.playCloud(firstInQueue);
+        break;
+
       default:
         throw new Error('Invalid TTS engine!');
+    }
+  }
+
+  playCloud(firstInQueue) {
+    const { phrase, lang, speed } = firstInQueue;
+
+    async function cloudTTS() {
+      const request = {
+        input: {text: phrase},
+        // Select the language and SSML voice gender (optional)
+        voice: {languageCode: 'en-US', ssmlGender: 'NEUTRAL'},
+        // select the type of audio encoding
+        audioConfig: {audioEncoding: 'MP3'},
+      };
+
+      logger.info(`(TTS): Received cloudTTS for ${phrase} with language '${lang}' and speed ${speed} in guild ${this.guild.name}.'`);
+      const [response] = await client.synthesizeSpeech(request);
+      // Write the binary audio content to a local file
+      const writeFile = util.promisify(fs.writeFile);
+      await writeFile('output.mp3', response.audioContent, 'binary');
+      logger.info("finished writing cloudTTS output to file");
+
+      this.speaking = true;
+      const { connection } = this.guild.voice;
+      const dispatcher = await connection.play('output.mp3');
+
+      dispatcher.on(dispatcherEvents.end, () => {
+        this.queue.shift();
+        this.speaking = false;
+        this.playTTS();
+      });
+
+      dispatcher.on(dispatcherEvents.error, (error) => {
+        logger.error(error);
+        this.queue.shift();
+        this.speaking = false;
+        this.playTTS();
+      });
     }
   }
 
