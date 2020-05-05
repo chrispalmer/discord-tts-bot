@@ -99,31 +99,43 @@ class TTSPlayer {
         audioConfig: {audioEncoding: 'MP3'},
       };
 
-      logger.info(`(TTS): Received cloudTTS for ${phrase} with language '${lang}' and speed ${speed} in guild ${this.guild.name}.'`);
       const [response] = await client.synthesizeSpeech(request);
       // Write the binary audio content to a local file
       const writeFile = util.promisify(fs.writeFile);
       await writeFile('output.mp3', response.audioContent, 'binary');
       logger.info("finished writing cloudTTS output to file");
-
-      this.speaking = true;
-      const { connection } = this.guild.voice;
-      const dispatcher = await connection.play('output.mp3');
-
-      dispatcher.on(dispatcherEvents.end, () => {
-        this.queue.shift();
-        this.speaking = false;
-        this.playTTS();
-      });
-
-      dispatcher.on(dispatcherEvents.error, (error) => {
-        logger.error(error);
-        this.queue.shift();
-        this.speaking = false;
-        this.playTTS();
-      });
+      return 'output.mps';
     }
-    cloudTTS();
+
+    cloudTTS()
+      .then(async (filename) => {
+        logger.info(`(TTS): Received cloudTTS for ${phrase} with language '${lang}' and speed ${speed} in guild ${this.guild.name}.'`);
+        this.speaking = true;
+        const { connection } = this.guild.voice;
+        const dispatcher = await connection.play(filename);
+
+        dispatcher.on('start', () => {
+          logger.info('cloudTTS is now playing!');
+        });
+
+        dispatcher.on('finish', () => {
+          logger.info('cloudTTS has finished playing');
+          this.queue.shift();
+          this.speaking = false;
+          this.playTTS();
+        });
+
+        dispatcher.on(dispatcherEvents.error, (error) => {
+          logger.info('cloudTTS hit an error during playback');
+          logger.error(error);
+          this.queue.shift();
+          this.speaking = false;
+          this.playTTS();
+        });
+      })
+      .catch((error) => {
+        logger.error(error);
+      });
   }
 
   playGoogle(firstInQueue) {
@@ -136,13 +148,19 @@ class TTSPlayer {
         const { connection } = this.guild.voice;
         const dispatcher = await connection.play(url);
 
-        dispatcher.on(dispatcherEvents.end, () => {
+        dispatcher.on('start', () => {
+          logger.info('googleTTS is now playing!');
+        });
+
+        dispatcher.on('finish', () => {
+          logger.info('googleTTS has finished playing');
           this.queue.shift();
           this.speaking = false;
           this.playTTS();
         });
 
         dispatcher.on(dispatcherEvents.error, (error) => {
+          logger.info('googleTTS hit an error during playback');
           logger.error(error);
           this.queue.shift();
           this.speaking = false;
@@ -170,13 +188,19 @@ class TTSPlayer {
         const { connection } = this.guild.voice;
         const dispatcher = await connection.play(url);
 
-        dispatcher.on(dispatcherEvents.end, () => {
+        dispatcher.on('start', () => {
+          logger.info('AEIOU is now playing!');
+        });
+
+        dispatcher.on('finish', () => {
+          logger.info('AEIOU has finished playing');
           this.queue.shift();
           this.speaking = false;
           this.playTTS();
         });
 
         dispatcher.on(dispatcherEvents.error, (error) => {
+          logger.info('AEIOU hit an error during playback');
           logger.error(error);
           this.queue.shift();
           this.speaking = false;
