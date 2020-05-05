@@ -102,13 +102,13 @@ class TTSPlayer {
       const request = {
         input: {text: phrase},
         // Select the language and SSML voice gender (optional)
-        voice: {languageCode: 'en-US', ssmlGender: 'NEUTRAL'},
+        voice: {languageCode: 'en-US', name: 'en-US-Wavenet-C'},
         // select the type of audio encoding
-        audioConfig: {audioEncoding: 'MP3'},
+        audioConfig: {audioEncoding: 'MP3', speakingRate: 1.25},
       };
 
       const [response] = await cloudTTSClient.synthesizeSpeech(request);
-      logger.info(`response.audioContent: ${reponse.audioContent}`);
+      logger.info(`response.audioContent: ${response.audioContent}`);
       const readable = stream.Readable().from(response.audioContent);
 
       // Write the binary audio content to a local file
