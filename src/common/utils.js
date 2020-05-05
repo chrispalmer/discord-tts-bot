@@ -1,6 +1,7 @@
 const { Logger } = require('logger');
 const { ACTIVITY_TYPE, TTS_MAX_CHARS } = require('./constants');
 const allowOver200 = process.env.ALLOW_OVER_200 || require('../../config/settings.json').allow_more_than_200_chars;
+const keepLongPhrases = process.env.KEEP_LONG_PHRASES;
 
 const logger = new Logger();
 
@@ -54,7 +55,8 @@ const splitToPlayable = (words) => {
   return new Promise((resolve, reject) => {
     const phrase = words.join(' ');
     const charCount = phrase.length;
-    if (charCount <= TTS_MAX_CHARS) {
+
+    if (charCount <= TTS_MAX_CHARS || KEEP_LONG_PHRASES) {
       resolve([phrase]);
       return;
     }
