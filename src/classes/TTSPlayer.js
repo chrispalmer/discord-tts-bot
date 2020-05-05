@@ -108,8 +108,7 @@ class TTSPlayer {
       };
 
       const [response] = await cloudTTSClient.synthesizeSpeech(request);
-      logger.info(`response.audioContent: ${response.audioContent}`);
-      const readable = stream.Readable().from(response.audioContent);
+      const readable = Readable().from(response.audioContent);
 
       // Write the binary audio content to a local file
       // const writeFile = util.promisify(fs.writeFile);
