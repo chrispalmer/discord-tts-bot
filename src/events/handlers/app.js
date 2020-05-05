@@ -54,7 +54,7 @@ const handleReady = (client) => {
   logger.info('Connected to Discord! - Ready.');
   updatePresence(client);
 
-  client.guilds.each((guild) => {
+  client.guilds.cache.each((guild) => {
     guild.ttsPlayer = new TTSPlayer(guild);
   });
 };
