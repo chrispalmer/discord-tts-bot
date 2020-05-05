@@ -11,7 +11,14 @@ const logger = new Logger();
 
 const fs = require('fs');
 const util = require('util');
-const cloudTTSClient = new textToSpeech.TextToSpeechClient();
+
+const google_credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_RAW);
+const cloudTTSClient = new textToSpeech.TextToSpeechClient({
+  credentials: {
+    client_email: google_credentials.clien_email,
+    private_key: google_credentials.private_key
+  }
+});
 
 
 class TTSPlayer {
